@@ -11,7 +11,7 @@ table_path = '/Users/dimitrismegaritis/PycharmProjects/ML/examples/results_Linea
 target_variables = ['g', 'h']
 input_feature_columns = ['a', 'b', 'c']
 first_heading = 'clinical_variable'
-second_heading = 'performance'
+second_heading = 'disease_status'
 splits = 10
 
 Linear_Reg = Linear_Regression(file_paths=file_paths,
