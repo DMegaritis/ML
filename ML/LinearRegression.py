@@ -11,6 +11,23 @@ import os
 class Linear_Regression:
     def __init__(self, *, file_paths, table_path, target_variables, input_feature_columns,
                  first_heading, second_heading, splits: int = 10):
+
+        if file_paths is None:
+            raise ValueError("Please input file_paths")
+        if table_path is None:
+            raise ValueError("Please input table_path")
+        if target_variables is None:
+            raise ValueError("Please input target_variables")
+        if input_feature_columns is None:
+            raise ValueError("Please input input_feature_columns")
+        if first_heading is None:
+            raise ValueError("Please input first_heading")
+        if second_heading is None:
+            raise ValueError("Please input second_heading")
+        if splits is None:
+            raise ValueError("Please input splits")
+
+
         self.file_paths = file_paths
         self.table_path = table_path
         self.target_variables = target_variables
