@@ -4,4 +4,4 @@ This repository contains machine and deep learning implementations for classific
 
 In addition, there are examples provided on how to use these classes. Please note that this is the initial implementation, and the file paths are currently set as absolute paths.
 
-This work has been used in the author's Doctoral thesis. 
+This work has been used in the author's Doctoral thesis (Digital Health). 
