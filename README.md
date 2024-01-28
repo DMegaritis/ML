@@ -1,4 +1,4 @@
-# ML_PhD Repository
+# ML.Table
 
 This repository contains machine and deep learning implementations for classification and regression tasks. It includes four classes, each dedicated to a specific model type - neural networks (2x), linear regression, and logistic regression. For these models to work, you'll need a CSV file with both predictors and outcomes in wide format. The output is a table which is saved as a CSV file. 
 
