@@ -1,12 +1,11 @@
 import pandas as pd
 import numpy as np
-from typing import List, Optional
+from typing import List
 from sklearn.model_selection import cross_val_predict, KFold
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import StandardScaler
 import time
-import os
 
 
 class NN_Regression:
@@ -48,6 +47,28 @@ class NN_Regression:
     def __init__(self, *, file_paths: List[str], table_path: str, target_variables: [List[str]] = None,
                  input_feature_columns: List[str], first_heading: str, second_heading: str,
                  levels: int = 3, neurons: int = 500, splits: int = 10, early_stopping: bool = False):
+
+        if file_paths is None:
+            raise ValueError("Please input file_paths")
+        if table_path is None:
+            raise ValueError("Please input table_path")
+        if target_variables is None:
+            raise ValueError("Please input target_variables")
+        if input_feature_columns is None:
+            raise ValueError("Please input input_feature_columns")
+        if first_heading is None:
+            raise ValueError("Please input first_heading")
+        if second_heading is None:
+            raise ValueError("Please input second_heading")
+        if levels is None:
+            raise ValueError("Please input levels")
+        if neurons is None:
+            raise ValueError("Please input neurons")
+        if splits is None:
+            raise ValueError("Please input splits")
+        if early_stopping is None:
+            raise ValueError("Please input early_stopping")
+
         self.file_paths = file_paths
         self.table_path = table_path
         self.target_variables = target_variables
