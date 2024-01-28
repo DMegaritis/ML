@@ -47,6 +47,28 @@ class NN_Classifier:
     def __init__(self, *, file_paths: List[str], table_path: str, target_variables: List[str] = None,
                  input_feature_columns: List[str], first_heading: str, second_heading: str,
                  levels: int = 3, neurons: int = 100, splits: int = 10, early_stopping: bool = False):
+
+        if file_paths is None:
+            raise ValueError("Please input file_paths")
+        if table_path is None:
+            raise ValueError("Please input table_path")
+        if target_variables is None:
+            raise ValueError("Please input target_variables")
+        if input_feature_columns is None:
+            raise ValueError("Please input input_feature_columns")
+        if first_heading is None:
+            raise ValueError("Please input first_heading")
+        if second_heading is None:
+            raise ValueError("Please input second_heading")
+        if levels is None:
+            raise ValueError("Please input levels")
+        if neurons is None:
+            raise ValueError("Please input neurons")
+        if splits is None:
+            raise ValueError("Please input splits")
+        if early_stopping is None:
+            raise ValueError("Please input early_stopping")
+
         self.file_paths = file_paths
         self.table_path = table_path
         self.target_variables = target_variables
