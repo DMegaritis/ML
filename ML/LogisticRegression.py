@@ -5,6 +5,40 @@ from sklearn.model_selection import cross_val_predict
 from sklearn.metrics import cohen_kappa_score, f1_score, recall_score, precision_score, accuracy_score
 import time
 
+'''
+    This class trains a Logistic Regression model for classification tasks using k-fold
+    cross-validation and saves the results to a table.
+
+    Attributes
+    ----------
+    file_paths : list of str
+        List of file paths for training data.
+    table_path : str
+        Path to save the results table.
+    target_variables : list of str
+        List of target variable names.
+    input_feature_columns : list of str
+        List of selected input feature column names.
+    first_heading : str
+        Heading for the first column in the results table.
+    second_heading : str
+        Heading for the second column in the results table.
+    table_heads : list of str
+        List of column headings for the results table.
+    splits : int
+        Number of folds for cross-validation.
+
+    Methods
+    -------
+    train()
+        Train the Logistic Regression model using k-fold cross-validation and save results to a CSV file.
+
+    Returns
+    -------
+    self : Logistic_Regression
+        Returns an instance of the Logistic_Regression class for use in a pipeline.
+    '''
+
 
 class Logistic_Regression:
     def __init__(self, *, file_paths, table_path, target_variables, input_feature_columns,
