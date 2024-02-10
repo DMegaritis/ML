@@ -98,6 +98,8 @@ class NN_Classifier:
 
         for file in self.file_paths:
             df = pd.read_csv(file)
+            df = df[self.input_feature_columns + self.target_variables]
+            df = df.dropna()
             X = df[self.input_feature_columns]
 
             # Feature scaling on the input data
@@ -168,4 +170,4 @@ class NN_Classifier:
             table_path = self.table_path
             table.to_csv(table_path, mode='w')
 
-            return self
+        return self

@@ -99,6 +99,8 @@ class NN_Regression:
 
         for file in self.file_paths:
             df = pd.read_csv(file)
+            df = df[self.input_feature_columns + self.target_variables]
+            df = df.dropna()
             X = df[self.input_feature_columns]
 
             # Feature scaling on the input data

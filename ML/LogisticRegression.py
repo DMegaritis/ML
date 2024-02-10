@@ -73,6 +73,8 @@ class Logistic_Regression:
 
         for file in self.file_paths:
             df = pd.read_csv(file)
+            df = df[self.input_feature_columns + self.target_variables]
+            df = df.dropna()
 
             # Extract features and labels from your DataFrame
             X = df[self.input_feature_columns]
