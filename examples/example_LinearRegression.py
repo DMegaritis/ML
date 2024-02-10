@@ -6,8 +6,8 @@ using example data. This version predicts continuous variables.
 '''
 
 # Specifying parameters
-file_paths = ['/Users/dimitrismegaritis/PycharmProjects/ML/examples/example_data_regression.csv']
-table_path = '/Users/dimitrismegaritis/PycharmProjects/ML/examples/results_LinearRegression.csv'
+file_paths = ['/Users/dimitrismegaritis/PycharmProjects/MLTable/examples/example_data_regression.csv']
+table_path = '/Users/dimitrismegaritis/PycharmProjects/MLTable/examples/results_LinearRegression.csv'
 target_variables = ['g', 'h']
 input_feature_columns = ['a', 'b', 'c']
 first_heading = 'clinical_variable'

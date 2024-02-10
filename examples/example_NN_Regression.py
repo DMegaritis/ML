@@ -6,8 +6,8 @@ This is an example on how to use the NN_Regressions class to train a Multi-layer
 '''
 
 # Specifying parameters
-file_paths = ['/Users/dimitrismegaritis/PycharmProjects/ML/examples/example_data_regression.csv']
-table_path = '/Users/dimitrismegaritis/PycharmProjects/ML/examples/results_NN_Regression.csv'
+file_paths = ['/Users/dimitrismegaritis/PycharmProjects/MLTable/examples/example_data_regression.csv']
+table_path = '/Users/dimitrismegaritis/PycharmProjects/MLTable/examples/results_NN_Regression.csv'
 target_variables = ['g', 'h']
 input_feature_columns = ['a', 'b', 'c']
 first_heading = 'clinical_variable'
