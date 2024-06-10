@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.preprocessing import LabelEncoder, StandardScaler, OneHotEncoder
 from sklearn.model_selection import cross_val_predict
 from sklearn.metrics import cohen_kappa_score, f1_score, recall_score, precision_score, accuracy_score
 import time
@@ -16,9 +16,11 @@ import time
     table_path : str
         Path to save the results table.
     target_variables : list of str
-        List of target variable names.
-    input_feature_columns : list of str
-        List of selected input feature column names.
+        List of target variable names. 
+    input_feature_columns_continuous : list of str
+        List of selected continuous input feature column names.
+    input_feature_columns_categorical : list of str
+        List of selected continuous input feature column names.
     first_heading : str
         Heading for the first column in the results table.
     second_heading : str
@@ -41,8 +43,8 @@ import time
 
 
 class Logistic_Regression:
-    def __init__(self, *, file_paths, table_path, target_variables, input_feature_columns,
-                 first_heading, second_heading, splits: int = 10):
+    def __init__(self, *, file_paths, table_path, target_variables, input_feature_columns_continuous,
+                 input_feature_columns_categorical=None, first_heading, second_heading, splits: int = 10):
 
         if file_paths is None:
             raise ValueError("Please input file_paths")
@@ -50,8 +52,8 @@ class Logistic_Regression:
             raise ValueError("Please input table_path")
         if target_variables is None:
             raise ValueError("Please input target_variables")
-        if input_feature_columns is None:
-            raise ValueError("Please input input_feature_columns")
+        if input_feature_columns_continuous is None:
+            raise ValueError("Please input input_feature_columns_continuous")
         if first_heading is None:
             raise ValueError("Please input first_heading")
         if second_heading is None:
@@ -62,7 +64,8 @@ class Logistic_Regression:
         self.file_paths = file_paths
         self.table_path = table_path
         self.target_variables = target_variables
-        self.input_feature_columns = input_feature_columns
+        self.input_feature_columns_continuous = input_feature_columns_continuous
+        self.input_feature_columns_categorical = input_feature_columns_categorical
         self.first_heading = first_heading
         self.second_heading = second_heading
         self.table_heads = [first_heading, second_heading,"Kappa", "F1", "Sensitivity", "Precision", "Accuracy"]
@@ -73,19 +76,39 @@ class Logistic_Regression:
 
         for file in self.file_paths:
             df = pd.read_csv(file)
-            df = df[self.input_feature_columns + self.target_variables]
-            df = df.dropna()
 
-            # Extract features and labels from your DataFrame
-            X = df[self.input_feature_columns]
+            if self.input_feature_columns_categorical is not None:
+                df = df[self.input_feature_columns_continuous + self.input_feature_columns_categorical + self.target_variables]
+                df = df.dropna()
+                # Categorical
+                X_categorical = df[self.input_feature_columns_categorical]
+                # One-hot encoding on the categorical input data
+                encoder = OneHotEncoder()
+                X_categorical = encoder.fit_transform(X_categorical).toarray()
+                # Continuous
+                X_continuous = df[self.input_feature_columns_continuous]
+                # Feature scaling on the continuous input data
+                scaler = StandardScaler()
+                X_continuous = scaler.fit_transform(X_continuous)
 
-            # Feature scaling on the input data
-            scaler = StandardScaler()
-            X = scaler.fit_transform(X)
+            else:
+                df = df[self.input_feature_columns_continuous + self.target_variables]
+                df = df.dropna()
+                X_continuous = df[self.input_feature_columns_continuous]
+                # Feature scaling on the continuous input data
+                scaler = StandardScaler()
+                X_continuous = scaler.fit_transform(X_continuous)
+
+            # Combine the continuous and categorical features
+            if self.input_feature_columns_categorical is not None:
+                X = pd.concat([pd.DataFrame(X_continuous), pd.DataFrame(X_categorical)], axis=1)
+            else:
+                X = pd.DataFrame(X_continuous)
 
             for target_variable in self.target_variables:
                 target = df[target_variable]
-                # no need for label encoding if classes are numeric
+
+                # Label encoding on the target variable
                 label_encoder = LabelEncoder()
                 y_encoded = label_encoder.fit_transform(target)
 

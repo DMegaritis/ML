@@ -4,7 +4,7 @@ from typing import List
 from sklearn.model_selection import cross_val_predict, KFold
 from sklearn.metrics import cohen_kappa_score, f1_score, recall_score, precision_score, accuracy_score
 from sklearn.neural_network import MLPClassifier
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.base import clone
 import time
 import os
@@ -23,8 +23,10 @@ class NN_Classifier:
         Path to save the results table.
     target_variables : list of str
         List of target variable names. Target variables are categorical.
-    input_feature_columns : list of str
-        List of selected input feature column names.
+    input_feature_columns_continuous : list of str
+        List of selected continuous input feature column names.
+    input_feature_columns_categorical : list of str
+        List of selected continuous input feature column names.
     first_heading : str
         Heading for the first column in the results table.
     second_heading : str
@@ -45,8 +47,9 @@ class NN_Classifier:
     '''
 
     def __init__(self, *, file_paths: List[str], table_path: str, target_variables: List[str] = None,
-                 input_feature_columns: List[str], first_heading: str, second_heading: str,
-                 levels: int = 3, neurons: int = 100, splits: int = 10, early_stopping: bool = False):
+                 input_feature_columns_continuous: List[str], input_feature_columns_categorical: List[str] = None,
+                 first_heading: str, second_heading: str, levels: int = 3, neurons: int = 100, splits: int = 10,
+                 early_stopping: bool = False):
 
         if file_paths is None:
             raise ValueError("Please input file_paths")
@@ -54,8 +57,8 @@ class NN_Classifier:
             raise ValueError("Please input table_path")
         if target_variables is None:
             raise ValueError("Please input target_variables")
-        if input_feature_columns is None:
-            raise ValueError("Please input input_feature_columns")
+        if input_feature_columns_continuous is None:
+            raise ValueError("Please input input_feature_columns_continuous")
         if first_heading is None:
             raise ValueError("Please input first_heading")
         if second_heading is None:
@@ -72,7 +75,8 @@ class NN_Classifier:
         self.file_paths = file_paths
         self.table_path = table_path
         self.target_variables = target_variables
-        self.input_feature_columns = input_feature_columns
+        self.input_feature_columns_continuous = input_feature_columns_continuous
+        self.input_feature_columns_categorical = input_feature_columns_categorical
         self.first_heading = first_heading
         self.second_heading = second_heading
         self.table_heads = [first_heading, second_heading, "Kappa", "F1", "Sensitivity", "Precision", "Accuracy"]
@@ -98,13 +102,36 @@ class NN_Classifier:
 
         for file in self.file_paths:
             df = pd.read_csv(file)
-            df = df[self.input_feature_columns + self.target_variables]
-            df = df.dropna()
-            X = df[self.input_feature_columns]
 
-            # Feature scaling on the input data
-            scaler = StandardScaler()
-            X = scaler.fit_transform(X)
+            if self.input_feature_columns_categorical is not None:
+                df = df[self.input_feature_columns_continuous + self.input_feature_columns_categorical + self.target_variables]
+                df = df.dropna()
+                # Categorical
+                X_categorical = df[self.input_feature_columns_categorical]
+                # One-hot encoding on the categorical input data
+                encoder = OneHotEncoder()
+                X_categorical = encoder.fit_transform(X_categorical).toarray()
+                # Continuous
+                X_continuous = df[self.input_feature_columns_continuous]
+                # Feature scaling on the continuous input data
+                scaler = StandardScaler()
+                X_continuous = scaler.fit_transform(X_continuous)
+
+            else:
+                df = df[self.input_feature_columns_continuous + self.target_variables]
+                df = df.dropna()
+                X_continuous = df[self.input_feature_columns_continuous]
+                # Feature scaling on the continuous input data
+                scaler = StandardScaler()
+                X_continuous = scaler.fit_transform(X_continuous)
+
+            # Combine the continuous and categorical features
+            if self.input_feature_columns_categorical is not None:
+                X = pd.concat([pd.DataFrame(X_continuous), pd.DataFrame(X_categorical)], axis=1)
+            else:
+                X = pd.DataFrame(X_continuous)
+
+
 
             # Define the Multi-layer Perceptron (MLP) Classifier model
             model = MLPClassifier(
