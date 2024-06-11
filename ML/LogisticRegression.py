@@ -165,8 +165,8 @@ class Logistic_Regression:
                     "AUC": [auc]
                 })
 
+                # Plot ROC curve
                 if range == 1:
-                    # Plot ROC curve
                     fpr, tpr, _ = roc_curve(y_encoded, y_prob_list)
                     plt.figure()
                     plt.plot(fpr, tpr, color='orange', label=f'ROC curve (AUC = {auc:.2f})')
