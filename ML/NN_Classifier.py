@@ -2,11 +2,12 @@ import pandas as pd
 import numpy as np
 from typing import List
 from sklearn.model_selection import cross_val_predict, KFold
-from sklearn.metrics import cohen_kappa_score, f1_score, recall_score, precision_score, accuracy_score
+from sklearn.metrics import cohen_kappa_score, f1_score, recall_score, precision_score, accuracy_score, roc_auc_score, roc_curve
 from sklearn.neural_network import MLPClassifier
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
 from sklearn.base import clone
 import time
+from matplotlib import pyplot as plt
 import os
 
 
@@ -79,7 +80,7 @@ class NN_Classifier:
         self.input_feature_columns_categorical = input_feature_columns_categorical
         self.first_heading = first_heading
         self.second_heading = second_heading
-        self.table_heads = [first_heading, second_heading, "Kappa", "F1", "Sensitivity", "Precision", "Accuracy"]
+        self.table_heads = [first_heading, second_heading, "Kappa", "F1", "Sensitivity", "Precision", "Accuracy", "AUC"]
         self.levels = levels
         self.neurons = neurons
         self.splits = splits
@@ -145,22 +146,29 @@ class NN_Classifier:
 
             for target_variable in self.target_variables:
                 target = df[target_variable]
+                label_encoder = LabelEncoder()
+                y_encoded = label_encoder.fit_transform(target)
+                range = max(y_encoded) - min(y_encoded)
 
                 start_time = time.time()
 
                 model = clone(model)
                 kf = KFold(n_splits=self.splits, random_state=0, shuffle=True)
 
-
                 # Use cross_val_predict to get predictions for each fold
-                y_pred_list = cross_val_predict(model, X, target, cv=kf)
+                y_pred_list = cross_val_predict(model, X, y_encoded, cv=kf)
+                y_prob_list = cross_val_predict(model, X, y_encoded, cv=self.splits, method='predict_proba')[:, 1]
 
                 # Calculate and print various evaluation metrics
-                kappa = cohen_kappa_score(target, y_pred_list)
-                mean_f1 = f1_score(target, y_pred_list, average='weighted')
-                mean_sensitivity = recall_score(target, y_pred_list, average='macro')
-                mean_precision = precision_score(target, y_pred_list, average='macro')
-                mean_accuracy = accuracy_score(target, y_pred_list)
+                kappa = cohen_kappa_score(y_encoded, y_pred_list)
+                mean_f1 = f1_score(y_encoded, y_pred_list, average='weighted')
+                mean_sensitivity = recall_score(y_encoded, y_pred_list, average='macro')
+                mean_precision = precision_score(y_encoded, y_pred_list, average='macro')
+                mean_accuracy = accuracy_score(y_encoded, y_pred_list)
+                if range == 1:
+                    auc = roc_auc_score(y_encoded, y_prob_list)
+                elif range > 1:
+                    auc = "non-binary target"
 
                 # rounding
                 kappa = round(kappa, 3)
@@ -168,6 +176,8 @@ class NN_Classifier:
                 mean_sensitivity = round(mean_sensitivity, 3)
                 mean_precision = round(mean_precision, 3)
                 mean_accuracy = round(mean_accuracy, 3)
+                if range == 1:
+                    auc = round(auc, 3)
 
                 print("Evaluation results:")
                 end_time = time.time()  # Record the end time
@@ -179,6 +189,7 @@ class NN_Classifier:
                 print("Sensitivity:", mean_sensitivity)
                 print("Precision:", mean_precision)
                 print("Accuracy:", mean_accuracy)
+                print("AUC:", auc)
 
                 # Create a DataFrame for the results
                 results_df = pd.DataFrame({
@@ -188,8 +199,21 @@ class NN_Classifier:
                     "F1": [mean_f1],
                     "Sensitivity": [mean_sensitivity],
                     "Precision": [mean_precision],
-                    "Accuracy": [mean_accuracy]
+                    "Accuracy": [mean_accuracy],
+                    "AUC": [auc]
                 })
+
+                # Plot ROC curve
+                if range == 1:
+                    fpr, tpr, _ = roc_curve(y_encoded, y_prob_list)
+                    plt.figure()
+                    plt.plot(fpr, tpr, color='orange', label=f'ROC curve (AUC = {auc:.2f})')
+                    plt.plot([0, 1], [0, 1], color='grey', linestyle='--')
+                    plt.xlabel('Specificity')
+                    plt.ylabel('Sensitivity')
+                    plt.title(f'ROC Curve for {target_variable}')
+                    plt.legend(loc='lower right')
+                    plt.show()
 
                 table = pd.concat([table, results_df], ignore_index=True).reset_index(drop=True)
 
