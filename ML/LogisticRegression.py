@@ -2,7 +2,8 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder, StandardScaler, OneHotEncoder
 from sklearn.model_selection import cross_val_predict
-from sklearn.metrics import cohen_kappa_score, f1_score, recall_score, precision_score, accuracy_score
+from sklearn.metrics import cohen_kappa_score, f1_score, recall_score, precision_score, accuracy_score, roc_auc_score, roc_curve
+from matplotlib import pyplot as plt
 import time
 
 '''
@@ -68,7 +69,7 @@ class Logistic_Regression:
         self.input_feature_columns_categorical = input_feature_columns_categorical
         self.first_heading = first_heading
         self.second_heading = second_heading
-        self.table_heads = [first_heading, second_heading,"Kappa", "F1", "Sensitivity", "Precision", "Accuracy"]
+        self.table_heads = [first_heading, second_heading,"Kappa", "F1", "Sensitivity", "Precision", "Accuracy", "AUC"]
         self.splits = splits
 
     def train(self):
@@ -111,12 +112,14 @@ class Logistic_Regression:
                 # Label encoding on the target variable
                 label_encoder = LabelEncoder()
                 y_encoded = label_encoder.fit_transform(target)
+                range = max(y_encoded) - min(y_encoded)
 
                 model = LogisticRegression(solver='lbfgs', multi_class='multinomial', max_iter=10000)
 
                 start_time = time.time()
                 # Perform k-fold cross-validation
                 y_pred_list = cross_val_predict(model, X, y_encoded, cv=self.splits)
+                y_prob_list = cross_val_predict(model, X, y_encoded, cv=self.splits, method='predict_proba')[:, 1]
 
                 # Calculate and print various evaluation metrics
                 kappa = cohen_kappa_score(y_encoded, y_pred_list)
@@ -124,6 +127,10 @@ class Logistic_Regression:
                 mean_sensitivity = recall_score(y_encoded, y_pred_list, average='macro')
                 mean_precision = precision_score(y_encoded, y_pred_list, average='macro')
                 mean_accuracy = accuracy_score(y_encoded, y_pred_list)
+                if range == 1:
+                    auc = roc_auc_score(y_encoded, y_prob_list)
+                elif range > 1:
+                    auc = "non-binary target"
 
                 # Rounding
                 kappa = round(kappa, 3)
@@ -131,6 +138,8 @@ class Logistic_Regression:
                 mean_sensitivity = round(mean_sensitivity, 3)
                 mean_precision = round(mean_precision, 3)
                 mean_accuracy = round(mean_accuracy, 3)
+                if range == 1:
+                    auc = round(auc, 3)
 
                 print("Evaluation results:")
                 end_time = time.time()  # Record the end time
@@ -142,6 +151,7 @@ class Logistic_Regression:
                 print("Sensitivity:", mean_sensitivity)
                 print("Precision:", mean_precision)
                 print("Accuracy:", mean_accuracy)
+                print("AUC:", auc)
 
                 # Create a DataFrame for the results
                 results_df = pd.DataFrame({
@@ -151,13 +161,28 @@ class Logistic_Regression:
                     "F1": [mean_f1],
                     "Sensitivity": [mean_sensitivity],
                     "Precision": [mean_precision],
-                    "Accuracy": [mean_accuracy]
+                    "Accuracy": [mean_accuracy],
+                    "AUC": [auc]
                 })
+
+                if range == 1:
+                    # Plot ROC curve
+                    fpr, tpr, _ = roc_curve(y_encoded, y_prob_list)
+                    plt.figure()
+                    plt.plot(fpr, tpr, color='orange', label=f'ROC curve (AUC = {auc:.2f})')
+                    plt.plot([0, 1], [0, 1], color='grey', linestyle='--')
+                    plt.xlabel('Specificity')
+                    plt.ylabel('Sensitivity')
+                    plt.title(f'ROC Curve for {target_variable}')
+                    plt.legend(loc='lower right')
+                    plt.show()
 
                 table = pd.concat([table, results_df], ignore_index=True).reset_index(drop=True)
 
             # Save the results to a CSV file
             table_path = self.table_path
             table.to_csv(table_path, mode='w')
+
+
 
         return self
