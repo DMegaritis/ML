@@ -1,8 +1,8 @@
 from ML.LogisticRegressionGroups import Logistic_Regression_Groups
 
 '''
-This is an example on how to use the Logist_Regression class to train a logistic regression machine learning model 
-using example data. This version predicts class values (categorical variables).
+This is an example on how to use the Logist_Regression_Groups class to train a logistic regression machine learning model 
+using example data. This version predicts class values (categorical variables) while grouping the data in prespecified groups.
 '''
 
 # Specifying parameters
