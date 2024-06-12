@@ -45,7 +45,7 @@ import time
 
 class Logistic_Regression:
     def __init__(self, *, file_paths, table_path, target_variables, input_feature_columns_continuous,
-                 input_feature_columns_categorical=None, first_heading, second_heading, splits: int = 10):
+                 input_feature_columns_categorical=None, first_heading, second_heading, splits: int = 10, scaler="yes"):
 
         if file_paths is None:
             raise ValueError("Please input file_paths")
@@ -71,6 +71,7 @@ class Logistic_Regression:
         self.second_heading = second_heading
         self.table_heads = [first_heading, second_heading,"Kappa", "F1", "Sensitivity", "Precision", "Accuracy", "AUC"]
         self.splits = splits
+        self.scaler = scaler
 
     def train(self):
         table = pd.DataFrame(columns= self.table_heads)
@@ -88,9 +89,12 @@ class Logistic_Regression:
                 X_categorical = encoder.fit_transform(X_categorical).toarray()
                 # Continuous
                 X_continuous = df[self.input_feature_columns_continuous]
-                # Feature scaling on the continuous input data
-                scaler = StandardScaler()
-                X_continuous = scaler.fit_transform(X_continuous)
+                # Feature scaling on the continuous input data (optional)
+                if self.scaler == "yes":
+                    scaler = StandardScaler()
+                    X_continuous = scaler.fit_transform(X_continuous)
+                elif self.scaler == "no":
+                    X_continuous = X_continuous.values
 
             else:
                 df = df[self.input_feature_columns_continuous + self.target_variables]
