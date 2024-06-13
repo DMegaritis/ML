@@ -153,13 +153,14 @@ class Logistic_Regression_Groups:
                 # Plot ROC curve
                 if range == 1:
                     fpr, tpr, _ = roc_curve(aggregated_y_test, aggregated_y_prob)
-                    plt.figure()
-                    plt.plot(fpr, tpr, color='orange', label=f'ROC curve (AUC = {auc:.2f})')
+                    plt.figure(figsize=(10, 15))
+                    plt.plot(fpr, tpr, color='orange', label=f'(Kappa = {kappa:.2f}, F1 = {mean_f1:.2f}, Sensitivity = {mean_sensitivity:.2f}, Precision = {mean_precision:.2f}, Accuracy = {mean_accuracy:.2f}, AUC = {auc:.2f})')
                     plt.plot([0, 1], [0, 1], color='grey', linestyle='--')
-                    plt.xlabel('Specificity')
-                    plt.ylabel('Sensitivity')
+                    plt.xlabel('Specificity', fontsize=8)
+                    plt.ylabel('Sensitivity', fontsize=8)
                     plt.title(f'ROC Curve for {target_variable}')
-                    plt.legend(loc='lower right')
+                    plt.legend(loc='lower left', fontsize=10, bbox_to_anchor=(0, -0.2))
+                    plt.tight_layout(pad=3)
                     plt.show()
 
                 table = pd.concat([table, results_df], ignore_index=True).reset_index(drop=True)

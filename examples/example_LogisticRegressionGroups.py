@@ -12,7 +12,7 @@ target_variables = ['target']
 input_feature_columns_continuous = ['a', 'b', 'c']
 first_heading = 'clinical_variable'
 second_heading = 'disease_status'
-splits = 10
+splits = 5
 group = ['ID']
 
 Log_Reg = Logistic_Regression_Groups(file_paths=file_paths,
