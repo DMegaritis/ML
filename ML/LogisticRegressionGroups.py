@@ -7,6 +7,47 @@ from sklearn.metrics import cohen_kappa_score, f1_score, recall_score, precision
 from matplotlib import pyplot as plt
 import time
 
+"""
+This class trains a Logistic Regression model for classification tasks using k-fold
+cross-validation and saves the results to a table. This class is an extension of the Logistic_Regression class
+working with group data (i.e., high frequency data).
+
+Attributes
+----------
+file_paths : list of str
+    List of file paths for training data.
+table_path : str
+    Path to save the results table.
+target_variables : list of str
+    List of target variable names.
+input_feature_columns_continuous : list of str
+    List of selected continuous input feature column names.
+input_feature_columns_categorical : list of str
+    List of selected continuous input feature column names.
+first_heading : str
+    Heading for the first column in the results table.
+second_heading : str
+    Heading for the second column in the results table.
+table_heads : list of str
+    List of column headings for the results table.
+splits : int
+    Number of folds for cross-validation.
+scaler : str
+    Whether to scale the continuous input features.
+group : str
+    Group column name for GroupKFold.
+    
+    Methods
+    -------
+    train()
+        Train the Logistic Regression model using k-fold cross-validation and save results to a CSV file.
+        
+    Returns
+    -------
+    self : Logistic_Regression_Groups
+        Returns an instance of the Logistic_Regression_Groups class for use in a pipeline.
+"""
+
 class Logistic_Regression_Groups:
     def __init__(self, *, file_paths, table_path, target_variables, input_feature_columns_continuous,
                  input_feature_columns_categorical=None, first_heading, second_heading, splits: int = 10,
