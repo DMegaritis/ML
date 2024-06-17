@@ -100,9 +100,12 @@ class Logistic_Regression:
                 df = df[self.input_feature_columns_continuous + self.target_variables]
                 df = df.dropna()
                 X_continuous = df[self.input_feature_columns_continuous]
-                # Feature scaling on the continuous input data
-                scaler = StandardScaler()
-                X_continuous = scaler.fit_transform(X_continuous)
+                # Feature scaling on the continuous input data (optional)
+                if self.scaler == "yes":
+                    scaler = StandardScaler()
+                    X_continuous = scaler.fit_transform(X_continuous)
+                elif self.scaler == "no":
+                    X_continuous = X_continuous.values
 
             # Combine the continuous and categorical features
             if self.input_feature_columns_categorical is not None:
