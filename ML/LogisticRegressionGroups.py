@@ -48,6 +48,7 @@ group : str
         Returns an instance of the Logistic_Regression_Groups class for use in a pipeline.
 """
 
+
 class Logistic_Regression_Groups:
     def __init__(self, *, file_paths, table_path, target_variables, input_feature_columns_continuous,
                  input_feature_columns_categorical=None, first_heading, second_heading, splits: int = 10,
