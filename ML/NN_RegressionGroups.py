@@ -4,12 +4,12 @@ from typing import List
 from sklearn.model_selection import cross_val_predict, KFold, GroupKFold
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.neural_network import MLPRegressor
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.base import clone
 import time
 
 
-class NN_Regression:
+class NN_RegressionGroups:
     """
     This class trains and evaluates a Multi-layer Perceptron (MLP) Regressor model for regression tasks using k-fold cross-validation
      and saves the results to a table. This class is designed for datasets with groups (i.e., high-frequency data).
@@ -36,8 +36,12 @@ class NN_Regression:
         Number of neurons in each hidden layer.
     splits : int
         Number of folds for cross-validation.
+    scaler : str
+        Whether to use feature scaling on the input data.
     early_stopping : bool
         Whether to use early stopping during training.
+    group : list of str
+        List of group column names.
 
     Methods
     -------
@@ -46,8 +50,9 @@ class NN_Regression:
     """
 
     def __init__(self, *, file_paths: List[str], table_path: str, target_variables: [List[str]] = None,
-                 input_feature_columns: List[str], first_heading: str, second_heading: str,
-                 levels: int = 3, neurons: int = 500, splits: int = 10, early_stopping: bool = False, group):
+                 input_feature_columns_continuous: List[str], input_feature_columns_categorical: List[str] = None,
+                 first_heading: str, second_heading: str, levels: int = 3, neurons: int = 500,
+                 splits: int = 10, scaler="yes", early_stopping: bool = False, group):
 
         if file_paths is None:
             raise ValueError("Please input file_paths")
@@ -55,7 +60,7 @@ class NN_Regression:
             raise ValueError("Please input table_path")
         if target_variables is None:
             raise ValueError("Please input target_variables")
-        if input_feature_columns is None:
+        if input_feature_columns_continuous is None:
             raise ValueError("Please input input_feature_columns")
         if first_heading is None:
             raise ValueError("Please input first_heading")
@@ -67,6 +72,8 @@ class NN_Regression:
             raise ValueError("Please input neurons")
         if splits is None:
             raise ValueError("Please input splits")
+        if scaler is None:
+            raise ValueError("Please input scaler")
         if early_stopping is None:
             raise ValueError("Please input early_stopping")
         if group is None:
@@ -75,7 +82,8 @@ class NN_Regression:
         self.file_paths = file_paths
         self.table_path = table_path
         self.target_variables = target_variables
-        self.input_feature_columns = input_feature_columns
+        self.input_feature_columns_continuous = input_feature_columns_continuous
+        self.input_feature_columns_categorical = input_feature_columns_categorical
         self.first_heading = first_heading
         self.second_heading = second_heading
         self.table_heads = [first_heading, second_heading, "Mean Squared Error (MSE)",
@@ -83,6 +91,7 @@ class NN_Regression:
         self.levels = levels
         self.neurons = neurons
         self.splits = splits
+        self.scaler = scaler
         self.early_stopping = early_stopping
         self.group = group
 
@@ -103,13 +112,40 @@ class NN_Regression:
 
         for file in self.file_paths:
             df = pd.read_csv(file)
-            df = df[self.input_feature_columns + self.target_variables]
-            df = df.dropna()
-            X = df[self.input_feature_columns]
 
-            # Feature scaling on the input data
-            scaler = StandardScaler()
-            X = scaler.fit_transform(X)
+            if self.input_feature_columns_categorical is not None:
+                df = df[self.input_feature_columns_continuous + self.input_feature_columns_categorical + self.group + self.target_variables]
+                df = df.dropna()
+                # Categorical
+                X_categorical = df[self.input_feature_columns_categorical]
+                # One-hot encoding on the categorical input data
+                encoder = OneHotEncoder()
+                X_categorical = encoder.fit_transform(X_categorical).toarray()
+                # Continuous
+                X_continuous = df[self.input_feature_columns_continuous]
+                # Feature scaling on the continuous input data
+                if self.scaler == "yes":
+                    scaler = StandardScaler()
+                    X_continuous = scaler.fit_transform(X_continuous)
+                elif self.scaler == "no":
+                    X_continuous = X_continuous.values
+
+            else:
+                df = df[self.input_feature_columns_continuous + self.group +self.target_variables]
+                df = df.dropna()
+                X_continuous = df[self.input_feature_columns_continuous]
+                # Feature scaling on the continuous input data (optional)
+                if self.scaler == "yes":
+                    scaler = StandardScaler()
+                    X_continuous = scaler.fit_transform(X_continuous)
+                elif self.scaler == "no":
+                    X_continuous = X_continuous.values
+
+            # Combine the continuous and categorical features
+            if self.input_feature_columns_categorical is not None:
+                X = pd.concat([pd.DataFrame(X_continuous), pd.DataFrame(X_categorical)], axis=1)
+            else:
+                X = pd.DataFrame(X_continuous)
 
             # Define the Multi-layer Perceptron (MLP) Regressor model
             model = MLPRegressor(
