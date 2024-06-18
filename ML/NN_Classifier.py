@@ -40,6 +40,10 @@ class NN_Classifier:
         Number of neurons in each hidden layer.
     splits : int
         Number of folds for cross-validation.
+    scaler : str
+        Whether to scale the continuous input features.
+    early_stopping : bool
+        Whether to use early stopping to prevent overfitting.
 
     Methods
     -------
