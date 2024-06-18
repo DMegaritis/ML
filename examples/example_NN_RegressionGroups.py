@@ -1,7 +1,7 @@
 from ML.NN_ClassifierGroups import NN_ClassifierGroups
 
 '''
-This is an example on how to use the NN_Classifier class to train a Multi-layer Perceptron (MLP) Regressor model using
+This is an example on how to use the NN_ClassifierGroups class to train a Multi-layer Perceptron (MLP) Regressor model using
 example data. This version predicts class values (categorical variables).
 '''
 
