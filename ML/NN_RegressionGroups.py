@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from typing import List
-from sklearn.model_selection import cross_val_predict, KFold
+from sklearn.model_selection import cross_val_predict, KFold, GroupKFold
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import StandardScaler
@@ -11,9 +11,8 @@ import time
 
 class NN_Regression:
     """
-    TODO: update dockstring
-    This class train a Multi-layer Perceptron (MLP) Regressor model for regression tasks using k-fold cross-validation
-     and saves the results to a table.
+    This class trains and evaluates a Multi-layer Perceptron (MLP) Regressor model for regression tasks using k-fold cross-validation
+     and saves the results to a table. This class is designed for datasets with groups (i.e., high-frequency data).
 
     Attributes
     ----------
@@ -48,7 +47,7 @@ class NN_Regression:
 
     def __init__(self, *, file_paths: List[str], table_path: str, target_variables: [List[str]] = None,
                  input_feature_columns: List[str], first_heading: str, second_heading: str,
-                 levels: int = 3, neurons: int = 500, splits: int = 10, early_stopping: bool = False):
+                 levels: int = 3, neurons: int = 500, splits: int = 10, early_stopping: bool = False, group):
 
         if file_paths is None:
             raise ValueError("Please input file_paths")
@@ -70,6 +69,8 @@ class NN_Regression:
             raise ValueError("Please input splits")
         if early_stopping is None:
             raise ValueError("Please input early_stopping")
+        if group is None:
+            raise ValueError("Please input group")
 
         self.file_paths = file_paths
         self.table_path = table_path
@@ -83,9 +84,10 @@ class NN_Regression:
         self.neurons = neurons
         self.splits = splits
         self.early_stopping = early_stopping
+        self.group = group
 
     def train(self):
-        '''
+        """
         Train the Multi-layer Perceptron (MLP) Regressor model using k-fold cross-validation.
 
         This method reads data from the specified file paths stored locally, performs feature scaling,
@@ -95,7 +97,7 @@ class NN_Regression:
         -------
         self : NN_Regression
             Returns an instance of the NN_Regression class for use in a pipeline.
-        '''
+        """
 
         table = pd.DataFrame(columns= self.table_heads)
 
@@ -122,20 +124,32 @@ class NN_Regression:
             for target_variable in self.target_variables:
                 target = df[target_variable]
 
+                model = clone(model)
+
                 start_time = time.time()
 
-                model = clone(model)
-                # Create a KFold cross-validation object with the desired number of folds
-                # TODO: update GrouKFold
-                kf = KFold(n_splits=self.splits, random_state=0, shuffle=True)
+                results_list = []
+                group_kfold = GroupKFold(n_splits=self.splits)
+                for train_index, test_index in group_kfold.split(X, target, groups=df[self.group]):
+                    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+                    y_train, y_test = target[train_index], target[test_index]
 
-                # Use cross_val_predict to get predictions for each fold
-                y_pred_list = cross_val_predict(model, X, target, cv=kf)
+                    model.fit(X_train, y_train)
+                    y_pred = model.predict(X_test)
+
+                    results_list.append({
+                        "y_test": y_test,
+                        "y_pred": y_pred,
+                    })
+
+                # Aggregate evaluation metrics across all folds
+                aggregated_y_test = np.concatenate([result["y_test"] for result in results_list])
+                aggregated_y_pred = np.concatenate([result["y_pred"] for result in results_list])
 
                 # Calculate and print regression metrics
-                mse = mean_squared_error(target, y_pred_list)
+                mse = mean_squared_error(aggregated_y_test, aggregated_y_pred)
                 mse = round(mse, 3)
-                r2 = r2_score(target, y_pred_list)
+                r2 = r2_score(aggregated_y_test, aggregated_y_pred)
                 r2 = round(r2, 3)
                 rmse = np.sqrt(mse)
                 rmse = round(rmse, 3)
