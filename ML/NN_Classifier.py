@@ -12,7 +12,7 @@ import os
 
 
 class NN_Classifier:
-    '''
+    """
     This class trains a Multi-layer Perceptron (MLP) Classifier model for classification tasks using k-fold
      cross-validation and saves the results to a table.
 
@@ -45,12 +45,12 @@ class NN_Classifier:
     -------
     train()
         Train the MLP model using cross-validation and save results to a CSV file.
-    '''
+    """
 
     def __init__(self, *, file_paths: List[str], table_path: str, target_variables: List[str] = None,
                  input_feature_columns_continuous: List[str], input_feature_columns_categorical: List[str] = None,
                  first_heading: str, second_heading: str, levels: int = 3, neurons: int = 100, splits: int = 10,
-                 early_stopping: bool = False):
+                 scaler="yes", early_stopping: bool = False):
 
         if file_paths is None:
             raise ValueError("Please input file_paths")
@@ -70,6 +70,8 @@ class NN_Classifier:
             raise ValueError("Please input neurons")
         if splits is None:
             raise ValueError("Please input splits")
+        if scaler is None:
+            raise ValueError("Please input scaler")
         if early_stopping is None:
             raise ValueError("Please input early_stopping")
 
@@ -84,6 +86,7 @@ class NN_Classifier:
         self.levels = levels
         self.neurons = neurons
         self.splits = splits
+        self.scaler = scaler
         self.early_stopping = early_stopping
 
     def train(self):
@@ -115,24 +118,28 @@ class NN_Classifier:
                 # Continuous
                 X_continuous = df[self.input_feature_columns_continuous]
                 # Feature scaling on the continuous input data
-                scaler = StandardScaler()
-                X_continuous = scaler.fit_transform(X_continuous)
+                if self.scaler == "yes":
+                    scaler = StandardScaler()
+                    X_continuous = scaler.fit_transform(X_continuous)
+                elif self.scaler == "no":
+                    X_continuous = X_continuous.values
 
             else:
                 df = df[self.input_feature_columns_continuous + self.target_variables]
                 df = df.dropna()
                 X_continuous = df[self.input_feature_columns_continuous]
-                # Feature scaling on the continuous input data
-                scaler = StandardScaler()
-                X_continuous = scaler.fit_transform(X_continuous)
+                # Feature scaling on the continuous input data (optional)
+                if self.scaler == "yes":
+                    scaler = StandardScaler()
+                    X_continuous = scaler.fit_transform(X_continuous)
+                elif self.scaler == "no":
+                    X_continuous = X_continuous.values
 
             # Combine the continuous and categorical features
             if self.input_feature_columns_categorical is not None:
                 X = pd.concat([pd.DataFrame(X_continuous), pd.DataFrame(X_categorical)], axis=1)
             else:
                 X = pd.DataFrame(X_continuous)
-
-
 
             # Define the Multi-layer Perceptron (MLP) Classifier model
             model = MLPClassifier(
