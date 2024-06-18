@@ -10,6 +10,7 @@ file_paths = ['/Users/dimitrismegaritis/PycharmProjects/MLTable/examples/example
 table_path = '/Users/dimitrismegaritis/PycharmProjects/MLTable/examples/results_NN_RegressionGroups.csv'
 target_variables = ['a']
 input_feature_columns_continuous = ['b', 'c']
+input_feature_columns_categorical = ['target']
 first_heading = 'clinical_variable'
 second_heading = 'disease_status'
 levels = 2
