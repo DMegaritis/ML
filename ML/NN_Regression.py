@@ -5,11 +5,12 @@ from sklearn.model_selection import cross_val_predict, KFold
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import StandardScaler
+from sklearn.base import clone
 import time
 
 
 class NN_Regression:
-    '''
+    """
     This class train a Multi-layer Perceptron (MLP) Regressor model for regression tasks using k-fold cross-validation
      and saves the results to a table.
 
@@ -42,7 +43,7 @@ class NN_Regression:
     -------
     train()
         Train the MLP model using cross-validation and save results to a CSV file.
-    '''
+    """
 
     def __init__(self, *, file_paths: List[str], table_path: str, target_variables: [List[str]] = None,
                  input_feature_columns: List[str], first_heading: str, second_heading: str,
@@ -122,6 +123,7 @@ class NN_Regression:
 
                 start_time = time.time()
 
+                model = clone(model)
                 # Create a KFold cross-validation object with the desired number of folds
                 kf = KFold(n_splits=self.splits, random_state=0, shuffle=True)
 
