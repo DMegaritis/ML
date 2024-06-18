@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_predict
+from sklearn.base import clone
 from sklearn.metrics import mean_squared_error, r2_score
 import time
 import os
@@ -86,10 +87,12 @@ class Linear_Regression:
             scaler = StandardScaler()
             X = scaler.fit_transform(X)
 
+            model = LinearRegression()
+
             for target_variable in self.target_variables:
                 target = df[target_variable]
 
-                model = LinearRegression()
+                model = clone(model)
 
                 start_time = time.time()
 

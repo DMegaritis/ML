@@ -3,10 +3,11 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder, StandardScaler, OneHotEncoder
 from sklearn.model_selection import cross_val_predict
 from sklearn.metrics import cohen_kappa_score, f1_score, recall_score, precision_score, accuracy_score, roc_auc_score, roc_curve
+from sklearn.base import clone
 from matplotlib import pyplot as plt
 import time
 
-'''
+""""
     This class trains a Logistic Regression model for classification tasks using k-fold
     cross-validation and saves the results to a table.
 
@@ -40,7 +41,7 @@ import time
     -------
     self : Logistic_Regression
         Returns an instance of the Logistic_Regression class for use in a pipeline.
-    '''
+    """
 
 
 class Logistic_Regression:
@@ -113,6 +114,8 @@ class Logistic_Regression:
             else:
                 X = pd.DataFrame(X_continuous)
 
+            model = LogisticRegression(solver='lbfgs', multi_class='multinomial', max_iter=10000)
+
             for target_variable in self.target_variables:
                 target = df[target_variable]
 
@@ -121,7 +124,7 @@ class Logistic_Regression:
                 y_encoded = label_encoder.fit_transform(target)
                 range = max(y_encoded) - min(y_encoded)
 
-                model = LogisticRegression(solver='lbfgs', multi_class='multinomial', max_iter=10000)
+                model = clone(model)
 
                 start_time = time.time()
                 # Perform k-fold cross-validation
