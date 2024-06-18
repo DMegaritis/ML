@@ -22,8 +22,10 @@ class NN_RegressionGroups:
         Path to save the results table.
     target_variables : list of str
         List of target variable names. Target variables are continuous.
-    input_feature_columns : list of str
-        List of selected input feature column names.
+    input_feature_columns_continuous : list of str
+        List of selected continuous input feature column names.
+    input_feature_columns_categorical : list of str
+        List of selected continuous input feature column names.
     first_heading : str
         Heading for the first column in the results table.
     second_heading : str
