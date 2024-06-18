@@ -118,7 +118,7 @@ class NN_ClassifierGroups:
             df = pd.read_csv(file)
 
             if self.input_feature_columns_categorical is not None:
-                df = df[self.input_feature_columns_continuous + self.input_feature_columns_categorical + self.target_variables]
+                df = df[self.input_feature_columns_continuous + self.input_feature_columns_categorical + self.group + self.target_variables]
                 df = df.dropna()
                 # Categorical
                 X_categorical = df[self.input_feature_columns_categorical]
@@ -135,7 +135,7 @@ class NN_ClassifierGroups:
                     X_continuous = X_continuous.values
 
             else:
-                df = df[self.input_feature_columns_continuous + self.target_variables]
+                df = df[self.input_feature_columns_continuous + self.group +self.target_variables]
                 df = df.dropna()
                 X_continuous = df[self.input_feature_columns_continuous]
                 # Feature scaling on the continuous input data (optional)
