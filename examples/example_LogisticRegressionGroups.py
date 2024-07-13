@@ -6,7 +6,7 @@ using example data. This version predicts class values (categorical variables) w
 '''
 
 # Specifying parameters
-file_paths = ['/Users/dimitrismegaritis/PycharmProjects/MLTable/examples/example_data_classification_groups.csv']
+file_paths = ['/Users/dimitrismegaritis/PycharmProjects/MLTable/examples/example_data_groups.csv']
 table_path = '/Users/dimitrismegaritis/PycharmProjects/MLTable/examples/results_LogisticRegressionGroups.csv'
 target_variables = ['target']
 input_feature_columns_continuous = ['a', 'b', 'c']
