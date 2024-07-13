@@ -84,7 +84,7 @@ class NN_Regression:
         self.early_stopping = early_stopping
 
     def train(self):
-        '''
+        """"
         Train the Multi-layer Perceptron (MLP) Regressor model using k-fold cross-validation.
 
         This method reads data from the specified file paths stored locally, performs feature scaling,
@@ -94,7 +94,7 @@ class NN_Regression:
         -------
         self : NN_Regression
             Returns an instance of the NN_Regression class for use in a pipeline.
-        '''
+        """
 
         table = pd.DataFrame(columns= self.table_heads)
 
@@ -157,7 +157,7 @@ class NN_Regression:
                 table = pd.concat([table, results_df], ignore_index=True).reset_index(drop=True)
 
             # Save the results to a CSV file
-            table_path = self.table_path
-            table.to_csv(table_path, mode='w')
+        table_path = self.table_path
+        table.to_csv(table_path, mode='w')
 
-            return self
+        return self
