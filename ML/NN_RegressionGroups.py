@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import os
 from typing import List
 from sklearn.model_selection import cross_val_predict, KFold, GroupKFold
 from sklearn.metrics import mean_squared_error, r2_score
@@ -29,7 +30,7 @@ class NN_RegressionGroups:
     first_heading : str
         Heading for the first column in the results table.
     second_heading : str
-        Heading for the second column in the results table.
+        Heading for the second column in the results table. This is the name of each file in the file_paths
     table_heads : list of str
         List of column headings for the results table.
     levels : int
@@ -202,7 +203,7 @@ class NN_RegressionGroups:
 
                 results_df = pd.DataFrame({
                     self.first_heading: [target.name],
-                    self.second_heading: [self.second_heading],
+                    self.second_heading: [os.path.basename(file)],
                     "Mean Squared Error (MSE)": [mse],
                     "Root Mean Squared Error (RMSE)": [rmse],
                     "R-squared (R^2)": [r2],

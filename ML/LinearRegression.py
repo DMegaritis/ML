@@ -1,48 +1,49 @@
 import pandas as pd
 import numpy as np
+import os
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_predict
 from sklearn.base import clone
 from sklearn.metrics import mean_squared_error, r2_score
 import time
-import os
-
-'''
-This class trains a Linear Regression model using k-fold cross-validation and saves the results to a table.
-
-    Attributes
-    ----------
-    file_paths : list of str
-        List of file paths for training data.
-    table_path : str
-        Path to save the results table.
-    target_variables : list of str
-        List of target variable names.
-    input_feature_columns : list of str
-        List of selected input feature column names.
-    first_heading : str
-        Heading for the first column in the results table.
-    second_heading : str
-        Heading for the second column in the results table.
-    table_heads : list of str
-        List of column headings for the results table.
-    splits : int
-        Number of folds for cross-validation.
-
-    Methods
-    -------
-    train()
-        Train the Linear Regression model using cross-validation and save results to a CSV file.
-
-    Returns
-    -------
-    self : Linear_Regression
-        Returns an instance of the Linear_Regression class for use in a pipeline.
-    '''
 
 
 class Linear_Regression:
+    """
+    This class trains a Linear Regression model using k-fold cross-validation and saves the results to a table.
+
+        Attributes
+        ----------
+        file_paths : list of str
+            List of file paths for training data.
+        table_path : str
+            Path to save the results table.
+        target_variables : list of str
+            List of target variable names.
+        input_feature_columns : list of str
+            List of selected input feature column names.
+        first_heading : str
+            Heading for the first column in the results table.
+        second_heading : str
+            Heading for the second column in the results table. This is the name of each file in the file_paths
+        table_heads : list of str
+            List of column headings for the results table.
+        splits : int
+            Number of folds for cross-validation.
+
+        Methods
+        -------
+        train()
+            Train the Linear Regression model using cross-validation and save results to a CSV file.
+
+        Returns
+        -------
+        self : Linear_Regression
+            Returns an instance of the Linear_Regression class for use in a pipeline.
+        """
+
+
     def __init__(self, *, file_paths, table_path, target_variables, input_feature_columns,
                  first_heading, second_heading, splits: int = 10):
 
@@ -119,7 +120,7 @@ class Linear_Regression:
                 # Create a DataFrame for the results
                 results_df = pd.DataFrame({
                     self.first_heading: [target_variable],
-                    self.second_heading: [self.second_heading],
+                    self.second_heading: [os.path.basename(file)],
                     "Mean Squared Error (MSE)": [mse],
                     "Root Mean Squared Error (RMSE)": [rmse],
                     "R-squared (R^2)": [r2],

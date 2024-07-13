@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder, StandardScaler, OneHotEncoder
 from sklearn.model_selection import cross_val_predict
@@ -7,44 +8,45 @@ from sklearn.base import clone
 from matplotlib import pyplot as plt
 import time
 
-""""
-    This class trains a Logistic Regression model for classification tasks using k-fold
-    cross-validation and saves the results to a table.
-
-    Attributes
-    ----------
-    file_paths : list of str
-        List of file paths for training data.
-    table_path : str
-        Path to save the results table.
-    target_variables : list of str
-        List of target variable names. 
-    input_feature_columns_continuous : list of str
-        List of selected continuous input feature column names.
-    input_feature_columns_categorical : list of str
-        List of selected continuous input feature column names.
-    first_heading : str
-        Heading for the first column in the results table.
-    second_heading : str
-        Heading for the second column in the results table.
-    table_heads : list of str
-        List of column headings for the results table.
-    splits : int
-        Number of folds for cross-validation.
-
-    Methods
-    -------
-    train()
-        Train the Logistic Regression model using k-fold cross-validation and save results to a CSV file.
-
-    Returns
-    -------
-    self : Logistic_Regression
-        Returns an instance of the Logistic_Regression class for use in a pipeline.
-    """
-
 
 class Logistic_Regression:
+    """"
+        This class trains a Logistic Regression model for classification tasks using k-fold
+        cross-validation and saves the results to a table.
+
+        Attributes
+        ----------
+        file_paths : list of str
+            List of file paths for training data.
+        table_path : str
+            Path to save the results table.
+        target_variables : list of str
+            List of target variable names.
+        input_feature_columns_continuous : list of str
+            List of selected continuous input feature column names.
+        input_feature_columns_categorical : list of str
+            List of selected continuous input feature column names.
+        first_heading : str
+            Heading for the first column in the results table.
+        second_heading : str
+            Heading for the second column in the results table. This is the name of each file in the file_paths
+        table_heads : list of str
+            List of column headings for the results table.
+        splits : int
+            Number of folds for cross-validation.
+
+        Methods
+        -------
+        train()
+            Train the Logistic Regression model using k-fold cross-validation and save results to a CSV file.
+
+        Returns
+        -------
+        self : Logistic_Regression
+            Returns an instance of the Logistic_Regression class for use in a pipeline.
+        """
+
+
     def __init__(self, *, file_paths, table_path, target_variables, input_feature_columns_continuous,
                  input_feature_columns_categorical=None, first_heading, second_heading, splits: int = 10, scaler="yes"):
 
@@ -166,7 +168,7 @@ class Logistic_Regression:
                 # Create a DataFrame for the results
                 results_df = pd.DataFrame({
                     self.first_heading: [target_variable],
-                    self.second_heading: [self.second_heading],
+                    self.second_heading: [os.path.basename(file)],
                     "Kappa": [kappa],
                     "F1": [mean_f1],
                     "Sensitivity": [mean_sensitivity],
