@@ -156,7 +156,7 @@ class NN_Regression:
 
                 table = pd.concat([table, results_df], ignore_index=True).reset_index(drop=True)
 
-            # Save the results to a CSV file
+        # Save the results to a CSV file
         table_path = self.table_path
         table.to_csv(table_path, mode='w')
 

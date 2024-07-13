@@ -248,8 +248,8 @@ class NN_ClassifierGroups:
                 training_time = end_time - start_time
                 print("Training Time:", training_time)
 
-            # Save the results to a CSV file
-            table_path = self.table_path
-            table.to_csv(table_path, mode='w')
+        # Save the results to a CSV file
+        table_path = self.table_path
+        table.to_csv(table_path, mode='w')
 
         return self
