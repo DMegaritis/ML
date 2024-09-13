@@ -19,6 +19,7 @@ scaler = 'yes'
 early_stopping = False
 group = ['ID']
 
+
 # Creating an instance of NN_Classifier
 nn_classifier = NN_ClassifierTimeSeries(
     file_paths=file_paths,

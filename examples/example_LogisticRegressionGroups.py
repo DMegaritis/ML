@@ -15,6 +15,7 @@ second_heading = 'disease_status'
 splits = 5
 group = ['ID']
 
+
 Log_Reg = Logistic_Regression_TimeSeries(file_paths=file_paths,
     table_path=table_path,
     target_variables=target_variables,

@@ -152,7 +152,7 @@ class NN_ClassifierTimeSeries:
             else:
                 X = pd.DataFrame(X_continuous)
 
-            # Define the Multi-layer Perceptron (MLP) Classifier model
+            # Define the Multi-layer Perceptron Classifier model
             model = MLPClassifier(
                 hidden_layer_sizes=tuple([self.neurons] * self.levels),
                 max_iter=1000,
