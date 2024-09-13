@@ -5,6 +5,7 @@ from ML.NN_ClassifierTimeSeries import NN_ClassifierTimeSeries
 Analysis for the BTS24 abstract.
 '''
 
+
 #%%
 # Logistic Regression Specifying parameters
 file_paths = [r'C:\Users\klch3\PycharmProjects\ML\aggregated_NIRS.csv']
@@ -31,6 +32,7 @@ Log_Reg = Logistic_Regression_TimeSeries(file_paths=file_paths,
     group=group)
 
 Log_Reg.train()
+
 
 #%%
 # Neural Network Time Series Specifing parameters
