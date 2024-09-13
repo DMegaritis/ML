@@ -12,11 +12,11 @@ from matplotlib import pyplot as plt
 import os
 
 
-class NN_ClassifierGroups:
+class NN_ClassifierTimeSeries:
     """
     This class trains a Multi-layer Perceptron (MLP) Classifier model for classification tasks using k-fold
      cross-validation and saves the results to a table. This class is an extension of the NN_Classifier class
-     working with grouped data (i.e., high frequency data).
+     working with grouped data (i.e., high frequency time series data).
 
     Attributes
     ----------
@@ -164,14 +164,13 @@ class NN_ClassifierGroups:
 
             for target_variable in self.target_variables:
                 target = df[target_variable]
-
                 label_encoder = LabelEncoder()
                 y_encoded = label_encoder.fit_transform(target)
                 range = max(y_encoded) - min(y_encoded)
 
-                model = clone(model)
-
                 start_time = time.time()
+
+                model = clone(model)
 
                 results_list = []
                 group_kfold = GroupKFold(n_splits=self.splits)

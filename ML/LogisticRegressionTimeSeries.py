@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 import time
 
 
-class Logistic_Regression_Groups:
+class Logistic_Regression_TimeSeries:
     """
     This class trains a Logistic Regression model for classification tasks using k-fold
     cross-validation and saves the results to a table. This class is an extension of the Logistic_Regression class
