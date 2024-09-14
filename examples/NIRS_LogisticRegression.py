@@ -40,6 +40,7 @@ file_paths = [r'C:\Users\klch3\PycharmProjects\ML\aggregated_NIRS.csv']
 table_path = r'C:\Users\klch3\PycharmProjects\ML\Result_NN_TOI.csv'
 target_variables = ['population']
 input_feature_columns_continuous = ['TOI_1', 'TOI_2', 'TOI_3', 'TOI_4']
+input_feature_columns_categorical = ['Comment']
 first_heading = 'TOI'
 second_heading = 'disease_group'
 levels = 3
