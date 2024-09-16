@@ -14,9 +14,9 @@ class CNN_Classifier:
     features : numpy array
         Preprocessed feature set with shape (samples, time_steps, channels).
     target : numpy array
-        Target variable for classification.
+        Target variable for classification. Same length as the number of samples.
     groups : numpy array
-        Array indicating the chunk index for each sample.
+        Indicating the chunk index for each sample.
     n_splits : int
         Number of folds for cross-validation.
     epochs : int
@@ -47,9 +47,9 @@ class CNN_Classifier:
             Compiled CNN model.
         """
         model = tf.keras.models.Sequential([
-            tf.keras.layers.Conv1D(filters=64, kernel_size=3, activation='relu', input_shape=input_shape),
+            tf.keras.layers.Conv1D(filters=32, kernel_size=3, activation='relu', input_shape=input_shape),
             tf.keras.layers.MaxPooling1D(pool_size=2),
-            tf.keras.layers.Conv1D(filters=128, kernel_size=3, activation='relu'),
+            tf.keras.layers.Conv1D(filters=64, kernel_size=3, activation='relu'),
             tf.keras.layers.MaxPooling1D(pool_size=2),
             tf.keras.layers.Flatten(),
             tf.keras.layers.Dense(64, activation='relu'),
@@ -117,27 +117,3 @@ class CNN_Classifier:
         results_df = pd.DataFrame(results)
         print("\nFinal Cross-Validation Results:\n", results_df)
 
-
-# Example usage
-features = np.random.rand(228, 151, 8)  # Example feature array (samples, time_steps, channels)
-target = np.random.randint(2, size=(228,))  # Example binary target
-groups = np.arange(228)  # Example groups (chunk indices)
-
-cnn_classifier = CNN_Classifier(features=features, target=target, groups=groups, n_splits=5, epochs=20, batch_size=32)
-cnn_classifier.train()
-
-
-#%%
-# Example usage
-# Testing the data are saved properly
-file_path = '/Users/dimitrismegaritis/Documents/BTS 2024/aggregated/cleaned_aggregated_BTS24.npy'
-features = np.load(file_path)
-
-# testing the target
-file_path = '/Users/dimitrismegaritis/Documents/BTS 2024/aggregated/target_BTS24.npy'
-target = np.load(file_path)
-
-groups = np.arange(features.shape[0])
-
-cnn_classifier = CNN_Classifier(features=features, target=target, groups=groups, n_splits=5, epochs=20, batch_size=32)
-cnn_classifier.train()
