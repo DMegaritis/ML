@@ -94,7 +94,7 @@ class NN_Classifier:
         self.early_stopping = early_stopping
 
     def train(self):
-        '''
+        """
         Train the Multi-layer Perceptron (MLP) Classifier model using k-fold cross-validation.
 
         This method reads data from the specified file paths stored locally, performs feature scaling,
@@ -104,7 +104,7 @@ class NN_Classifier:
         -------
         self : NN_Classifier
             Returns an instance of the NN_Classifier class for use in a pipeline.
-        '''
+        """
 
         table = pd.DataFrame(columns=self.table_heads)
 
