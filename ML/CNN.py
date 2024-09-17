@@ -139,5 +139,3 @@ class CNN_Classifier:
         plt.title(f'ROC Curve')
         plt.legend(loc='lower right')
         plt.show()
-
-# TODO: -check all warnings
