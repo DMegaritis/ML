@@ -90,7 +90,6 @@ class CNN_Classifier:
             history = model.fit(X_train, y_train, epochs=self.epochs, batch_size=self.batch_size, verbose=0,
                                 validation_data=(X_test, y_test))
 
-
             # Make predictions
             y_pred = (model.predict(X_test) > 0.5).astype("int32")
             y_prob = model.predict(X_test)
@@ -122,12 +121,18 @@ class CNN_Classifier:
         print(f"training time: {training_time}")
 
         # Results as a DataFrame
-        results_df = pd.DataFrame(results)
-        print("\nFinal Cross-Validation Results:\n", results_df)
+        results_per_fold = pd.DataFrame(results)
+        print("\nFinal Cross-Validation Results:\n", results_per_fold)
+        # Saving the results from each fold to a CSV file
+        table_path = r'C:\Users\klch3\PycharmProjects\MLTable\results/fold_wise_CNN.csv'
+        results_per_fold.to_csv(table_path, mode='w')
 
         # Calculating average results
-        average_results = results_df.mean()
+        average_results = round(results_per_fold.mean(), 3)
         print("\nAverage Cross-Validation Results:\n", average_results)
+        # Saving the aggregated results to a CSV file
+        table_path = r'C:\Users\klch3\PycharmProjects\MLTable\results/aggregated_CNN.csv'
+        average_results.to_csv(table_path, mode='w')
 
         # Calculating ROC-AUC
         fpr, tpr, _ = roc_curve(y_true_list, y_prob_list)
