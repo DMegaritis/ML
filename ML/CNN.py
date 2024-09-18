@@ -71,11 +71,16 @@ class CNN_Classifier:
         None
         """
         gkf = GroupKFold(n_splits=self.n_splits)
-        results = []
+        results_test = []
+        results_train = []
 
-        # To aggregate predicted and true targets for all folds
+        # To aggregate predicted and true targets for all folds (model evaluation on test data)
         y_true_list = []
         y_prob_list = []
+
+        # Initialize lists to store true and predicted values (model evaluation on train data)
+        y_train_true_list = []
+        y_train_prob_list = []
 
         start_time = time.time()
 
@@ -94,6 +99,7 @@ class CNN_Classifier:
             y_pred = (model.predict(X_test) > 0.5).astype("int32")
             y_prob = model.predict(X_test)
 
+            # Lists with actual and predicted targets for the test data
             y_true_list.extend(y_test)
             y_prob_list.extend(y_prob)
 
@@ -106,7 +112,7 @@ class CNN_Classifier:
             auc = roc_auc_score(y_test, y_prob)
 
             # Store the results
-            results.append({
+            results_test.append({
                 "Kappa": round(kappa, 3),
                 "F1": round(mean_f1, 3),
                 "Sensitivity": round(mean_sensitivity, 3),
@@ -115,32 +121,112 @@ class CNN_Classifier:
                 "AUC": round(auc, 3)
             })
 
+            # Make predictions on the training set
+            y_train_pred = (model.predict(X_train) > 0.5).astype("int32")
+            y_train_prob = model.predict(X_train)
+
+            # Aggregate true labels and predicted probabilities for the training set
+            y_train_true_list.extend(y_train)
+            y_train_prob_list.extend(y_train_prob)
+
+            # Evaluating metrics for training set
+            kappa_train = cohen_kappa_score(y_train, y_train_pred)
+            mean_f1_train = f1_score(y_train, y_train_pred, average='weighted')
+            mean_sensitivity_train = recall_score(y_train, y_train_pred, average='macro')
+            mean_precision_train = precision_score(y_train, y_train_pred, average='macro')
+            mean_accuracy_train = accuracy_score(y_train, y_train_pred)
+            auc_train_table = roc_auc_score(y_train, y_train_prob)
+
+            # Store the results for the training set
+            results_train.append({
+                "Kappa_train": round(kappa_train, 3),
+                "F1_train": round(mean_f1_train, 3),
+                "Sensitivity_train": round(mean_sensitivity_train, 3),
+                "Precision_train": round(mean_precision_train, 3),
+                "Accuracy_train": round(mean_accuracy_train, 3),
+                "AUC_train": round(auc_train_table, 3)
+            })
+
         end_time = time.time()
         # Training time
         training_time = end_time - start_time
         print(f"training time: {training_time}")
 
-        # Results as a DataFrame
-        results_per_fold = pd.DataFrame(results)
-        print("\nFinal Cross-Validation Results:\n", results_per_fold)
+        # Results as a DataFrame (model evaluation on test data)
+        results_test_per_fold = pd.DataFrame(results_test)
+        print("\nPer Fold Cross-Validation Results for test set:\n", results_test_per_fold)
         # Saving the results from each fold to a CSV file
         table_path = r'C:\Users\klch3\PycharmProjects\MLTable\results/fold_wise_CNN.csv'
-        results_per_fold.to_csv(table_path, mode='w')
+        results_test_per_fold.to_csv(table_path, mode='w')
 
-        # Calculating average results
-        average_results = round(results_per_fold.mean(), 3)
-        print("\nAverage Cross-Validation Results:\n", average_results)
+        # Calculating average results (model evaluation on test data)
+        average_results = round(results_test_per_fold.mean(), 3)
+        print("\nAverage Cross-Validation Results for test set:\n", average_results)
         # Saving the aggregated results to a CSV file
         table_path = r'C:\Users\klch3\PycharmProjects\MLTable\results/aggregated_CNN.csv'
         average_results.to_csv(table_path, mode='w')
 
-        # Calculating ROC-AUC
-        fpr, tpr, _ = roc_curve(y_true_list, y_prob_list)
+        # Results as a DataFrame (model evaluation on train data)
+        results_train_per_fold = pd.DataFrame(results_train)
+        print("\nPer fold Cross-Validation Results for train set:\n", results_train_per_fold)
+        # Saving the results from each fold to a CSV file
+        table_path = r'C:\Users\klch3\PycharmProjects\MLTable\results/fold_wise_train_CNN.csv'
+        results_train_per_fold.to_csv(table_path, mode='w')
+
+        # Calculating average results (model evaluation on test data)
+        average_train_results = round(results_train_per_fold.mean(), 3)
+        print("\nAverage Cross-Validation Results for train set:\n", average_train_results)
+        # Saving the aggregated results to a CSV file
+        table_path = r'C:\Users\klch3\PycharmProjects\MLTable\results/aggregated_train_CNN.csv'
+        average_train_results.to_csv(table_path, mode='w')
+
+        # Calculating ROC-AUC (model evaluation on test data)
+        fpr_test, tpr_test, _ = roc_curve(y_true_list, y_prob_list)
+        # AUC from the whole dataset
+        # auc_test = roc_auc_score(y_true_list, y_prob_list)
+        # AUC averaged over all folds
+        auc_test = average_results.loc['AUC']
         plt.figure()
-        plt.plot(fpr, tpr, color='orange', label=f'ROC curve (AUC = {auc:.2f})')
+        plt.plot(fpr_test, tpr_test, color='orange', label=f'ROC curve (AUC = {auc_test:.2f})')
         plt.plot([0, 1], [0, 1], color='grey', linestyle='--')
         plt.xlabel('Specificity')
         plt.ylabel('Sensitivity')
-        plt.title(f'ROC Curve')
+        plt.title(f'ROC Curve for model evaluation')
         plt.legend(loc='lower right')
+        # Saving the plot locally
+        fig_path = r'C:\Users\klch3\PycharmProjects\MLTable\results\roc_curve_test.png'
+        plt.savefig(fig_path, dpi=300)
+        plt.show()
+
+        # Calculating ROC-AUC (model evaluation on train data)
+        fpr_train, tpr_train, _ = roc_curve(y_train_true_list, y_train_prob_list)
+        # AUC from the whole dataset
+        # auc_train = roc_auc_score(y_train_true_list, y_train_prob_list)
+        # AUC averaged over all folds
+        auc_train = average_train_results.loc['AUC_train']
+        plt.figure()
+        plt.plot(fpr_train, tpr_train, color='orange', label=f'ROC curve (AUC = {auc_train:.2f})')
+        plt.plot([0, 1], [0, 1], color='grey', linestyle='--')
+        plt.xlabel('Specificity')
+        plt.ylabel('Sensitivity')
+        plt.title(f'ROC Curve for training set')
+        plt.legend(loc='lower right')
+        # Saving the plot locally
+        fig_path = r'C:\Users\klch3\PycharmProjects\MLTable\results\roc_curve_train.png'
+        plt.savefig(fig_path, dpi=300)
+        plt.show()
+
+        # Ploting both ROC curves on the same figure
+        plt.figure()
+        plt.plot(fpr_test, tpr_test, color='orange', label=f'Test ROC (AUC = {auc_test:.2f})')
+        plt.plot(fpr_train, tpr_train, color='blue', label=f'Train ROC (AUC = {auc_train:.2f})')
+        plt.plot([0, 1], [0, 1], color='grey', linestyle='--')
+        plt.xlabel('Specificity')
+        plt.ylabel('Sensitivity')
+        plt.title('ROC Curve for Training and Test Sets')
+        plt.legend(loc='lower right')
+
+        # Save the figure
+        fig_path = r'C:\Users\klch3\PycharmProjects\MLTable\results\roc_curve_train_vs_test.png'
+        plt.savefig(fig_path, dpi=300)
         plt.show()
