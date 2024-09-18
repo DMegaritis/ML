@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+from keras.src.callbacks import EarlyStopping
 from sklearn.model_selection import GroupKFold
 from sklearn.metrics import cohen_kappa_score, f1_score, recall_score, precision_score, accuracy_score, roc_auc_score, roc_curve
 import time
@@ -26,13 +27,14 @@ class CNN_Classifier:
     batch_size : int
         Batch size for training.
     """
-    def __init__(self, features, target, groups, n_splits=5, epochs=20, batch_size=32):
+    def __init__(self, features, target, groups, n_splits=5, epochs=20, batch_size=32, early_stopping=False):
         self.features = features
         self.target = target
         self.groups = groups
         self.n_splits = n_splits
         self.epochs = epochs
         self.batch_size = batch_size
+        self.early_stopping = early_stopping
 
     def create_cnn_model(self, input_shape):
         """
@@ -50,9 +52,13 @@ class CNN_Classifier:
         """
         model = tf.keras.models.Sequential([
             tf.keras.layers.Input(shape=input_shape),
-            tf.keras.layers.Conv1D(filters=32, kernel_size=3, activation='relu'),
+            tf.keras.layers.Conv1D(filters=64, kernel_size=5, activation='relu'),
             tf.keras.layers.MaxPooling1D(pool_size=2),
-            tf.keras.layers.Conv1D(filters=64, kernel_size=3, activation='relu'),
+            tf.keras.layers.Conv1D(filters=128, kernel_size=5, activation='relu'),
+            tf.keras.layers.MaxPooling1D(pool_size=2),
+            tf.keras.layers.Conv1D(filters=256, kernel_size=5, activation='relu'),
+            tf.keras.layers.MaxPooling1D(pool_size=2),
+            tf.keras.layers.Conv1D(filters=512, kernel_size=5, activation='relu'),
             tf.keras.layers.MaxPooling1D(pool_size=2),
             tf.keras.layers.Flatten(),
             tf.keras.layers.Dense(64, activation='relu'),
@@ -83,6 +89,8 @@ class CNN_Classifier:
         y_train_prob_list = []
 
         start_time = time.time()
+        # Early Stopping callback
+        early_stopping = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
 
         for train_index, test_index in gkf.split(self.features, self.target, self.groups):
             X_train, X_test = self.features[train_index], self.features[test_index]
@@ -92,8 +100,12 @@ class CNN_Classifier:
             model = self.create_cnn_model(input_shape=X_train.shape[1:])
 
             # Train the CNN model
-            history = model.fit(X_train, y_train, epochs=self.epochs, batch_size=self.batch_size, verbose=0,
-                                validation_data=(X_test, y_test))
+            history = model.fit(X_train, y_train,
+                                epochs=self.epochs,
+                                batch_size=self.batch_size,
+                                verbose=0,
+                                validation_data=(X_test, y_test),
+                                callbacks=[early_stopping] if self.early_stopping else [])
 
             # Make predictions
             y_pred = (model.predict(X_test) > 0.5).astype("int32")
