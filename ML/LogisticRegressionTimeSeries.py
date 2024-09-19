@@ -220,5 +220,4 @@ class Logistic_Regression_TimeSeries:
         table_path = self.table_path
         table.to_csv(table_path, mode='w')
 
-
         return self
