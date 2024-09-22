@@ -254,5 +254,5 @@ class CNN_Classifier:
                                   verbose=0)
 
         # Saving model
-        final_model.save('final_cnn_classifier_model.h5')
+        final_model.save('myfinal_cnn_model.h5')
         print("Final model saved as 'final_cnn_classifier_model.h5'")
