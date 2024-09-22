@@ -242,3 +242,15 @@ class CNN_Classifier:
         fig_path = r'C:\Users\klch3\PycharmProjects\MLTable\results\roc_curve_train_vs_test.png'
         plt.savefig(fig_path, dpi=300)
         plt.show()
+
+        # Trainning the final model on the entire dataset to save
+        final_model = self.create_cnn_model(input_shape=self.features.shape[1:])
+
+        history = final_model.fit(self.features, self.target,
+                                  epochs=self.epochs,
+                                  batch_size=self.batch_size,
+                                  verbose=0)
+
+        # Saving model
+        final_model.save('final_cnn_classifier_model.h5')
+        print("Final model saved as 'final_cnn_classifier_model.h5'")
