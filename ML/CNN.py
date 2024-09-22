@@ -52,13 +52,13 @@ class CNN_Classifier:
         """
         model = tf.keras.models.Sequential([
             tf.keras.layers.Input(shape=input_shape),
-            tf.keras.layers.Conv1D(filters=64, kernel_size=5, activation='relu'),
+            tf.keras.layers.Conv1D(filters=64, kernel_size=3, activation='relu'),
             tf.keras.layers.MaxPooling1D(pool_size=2),
-            tf.keras.layers.Conv1D(filters=128, kernel_size=5, activation='relu'),
+            tf.keras.layers.Conv1D(filters=128, kernel_size=3, activation='relu'),
             tf.keras.layers.MaxPooling1D(pool_size=2),
-            tf.keras.layers.Conv1D(filters=256, kernel_size=5, activation='relu'),
+            tf.keras.layers.Conv1D(filters=256, kernel_size=3, activation='relu'),
             tf.keras.layers.MaxPooling1D(pool_size=2),
-            tf.keras.layers.Conv1D(filters=512, kernel_size=5, activation='relu'),
+            tf.keras.layers.Conv1D(filters=512, kernel_size=3, activation='relu'),
             tf.keras.layers.MaxPooling1D(pool_size=2),
             tf.keras.layers.Flatten(),
             tf.keras.layers.Dense(64, activation='relu'),
@@ -95,6 +95,8 @@ class CNN_Classifier:
         for train_index, test_index in gkf.split(self.features, self.target, self.groups):
             X_train, X_test = self.features[train_index], self.features[test_index]
             y_train, y_test = self.target[train_index], self.target[test_index]
+            print("X_train")
+            print(X_train.shape)
 
             # Create a new CNN model for each fold
             model = self.create_cnn_model(input_shape=X_train.shape[1:])
