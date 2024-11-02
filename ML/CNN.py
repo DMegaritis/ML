@@ -45,8 +45,6 @@ class CNN_Classifier:
         ----------
         input_shape : tuple
             Shape of the input data (time_steps, channels).
-        scale : bool
-            Whether to scale the features using StandardScaler.
 
         Returns
         -------
@@ -74,6 +72,11 @@ class CNN_Classifier:
     def train(self, scale=False):
         """
         Train the CNN model using group k-fold cross-validation and evaluate using various metrics.
+
+        Parameters
+        ----------
+        scale : bool
+            Whether to scale the features using StandardScaler.
 
         Returns
         -------
